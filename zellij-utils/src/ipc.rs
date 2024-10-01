@@ -18,7 +18,6 @@ use crate::shared::set_permissions;
 
 #[cfg(unix)]
 use interprocess::local_socket::{LocalSocketListener, LocalSocketStream};
-use log::warn;
 
 #[cfg(unix)]
 use nix::unistd::dup;
@@ -336,7 +335,7 @@ where
         match rmp_serde::decode::from_read(&mut self.receiver) {
             Ok(msg) => Some(msg),
             Err(e) => {
-                warn!("Error in IpcReceiver.recv(): {:?}", e);
+                log::warn!("Error in IpcReceiver.recv(): {:?}", e);
                 None
             },
         }
