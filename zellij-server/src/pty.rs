@@ -2022,7 +2022,7 @@ impl Pty {
 
     #[cfg(unix)]
     fn child_to_pid(child: &RawFd) -> Pid {
-        Pid::from(child)
+        Pid::from(child as usize)
     }
 }
 

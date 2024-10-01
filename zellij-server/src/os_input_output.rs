@@ -32,6 +32,7 @@ use std::{
     path::PathBuf,
     process::{Child, Command},
     sync::{Arc, Mutex, RwLock},
+    thread,
 };
 
 pub use async_trait::async_trait;
@@ -44,7 +45,7 @@ pub use nix::unistd::Pid;
 use nix::{
     pty::{openpty, OpenptyResult, Winsize},
     sys::{
-        signal::{kill, Signal},
+        signal::{kill, Signal, SIGINT, SIGTERM},
         termios,
     },
     unistd,
@@ -54,8 +55,6 @@ use std::os::unix::{io::RawFd, process::CommandExt};
 #[cfg(unix)]
 use zellij_utils::{libc, nix};
 
-#[cfg(windows)]
-use std::thread;
 #[cfg(windows)]
 pub use sysinfo::{Pid, Signal, System};
 #[cfg(windows)]
@@ -587,10 +586,11 @@ pub struct WinPtyReference {
     pub pty: Arc<RwLock<PTY>>,
 }
 
+#[cfg(windows)]
 impl WinPtyReference {}
 
 #[cfg(unix)]
-type TerminalReference = RawFd;
+type TerminalReference = (RawFd, RawFd);
 #[cfg(windows)]
 type TerminalReference = WinPtyReference;
 
@@ -837,6 +837,8 @@ impl ServerOsApi for ServerOsInputOutput {
             None => Err(anyhow!("no more terminal IDs left to allocate")),
         }
     }
+
+    #[cfg(windows)]
     fn spawn_terminal(
         &self,
         terminal_action: TerminalAction,
@@ -881,20 +883,16 @@ impl ServerOsApi for ServerOsInputOutput {
                     terminal_id,
                 )
                 .and_then(|spawned_terminal| {
+                    let terminal = spawned_terminal;
                     #[cfg(windows)]
-                    let terminal = WinPtyReference {
-                        pty: spawned_terminal,
-                    };
+                    let terminal = WinPtyReference { pty: terminal };
                     #[cfg(windows)]
                     let map_reference = terminal.clone();
-                    #[cfg(windows)]
-                    let result = Ok((terminal_id, terminal));
 
                     #[cfg(unix)]
                     let map_reference = pid_primary;
-                    #[cfg(unix)]
-                    let result = Ok((terminal_id, spawned_terminal.0, spawned_terminal.1));
 
+                    let result = Ok((terminal_id, terminal));
                     self.terminal_id_to_reference
                         .lock()
                         .to_anyhow()?
