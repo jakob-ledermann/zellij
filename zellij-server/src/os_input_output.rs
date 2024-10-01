@@ -7,7 +7,7 @@ use interprocess::local_socket::LocalSocketStream;
 use std::ffi::OsString;
 use std::io::Error;
 
-use sysinfo::{ProcessExt, ProcessRefreshKind, SystemExt};
+use sysinfo::{ProcessExt, ProcessRefreshKind, System, SystemExt};
 use zellij_utils::{
     async_std,
     channels::{self, TrySendError},
@@ -56,7 +56,7 @@ use std::os::unix::{io::RawFd, process::CommandExt};
 use zellij_utils::{libc, nix};
 
 #[cfg(windows)]
-pub use sysinfo::{Pid, Signal, System};
+pub use sysinfo::{Pid, Signal};
 #[cfg(windows)]
 use winptyrs::{AgentConfig, PTYArgs, PTY};
 

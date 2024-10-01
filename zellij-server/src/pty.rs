@@ -823,17 +823,17 @@ impl Pty {
                             PaneId::Plugin(..) => None,
                             PaneId::Terminal(id) => self.id_to_child_pid.get(id),
                         })
-                        .and_then(|winptyreference| {
+                        .and_then(|ptyreference| {
                             #[cfg(windows)]
                             {
-                                let pty = winptyreference.pty.read().unwrap();
+                                let pty = ptyreference.pty.read().unwrap();
                                 self.bus.os_input.as_ref().and_then(|input| {
                                     input.get_cwd((pty.get_pid() as usize).into())
                                 })
                             }
                             #[cfg(unix)]
                             {
-                                let pid = Pid::from_raw(id);
+                                let pid = Pid::from_raw(ptyreference);
                                 self.bus
                                     .os_input
                                     .as_ref()
