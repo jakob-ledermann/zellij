@@ -5309,9 +5309,9 @@ checksum = "589f6da84c646204747d1270a2a5661ea66ed1cced2631d546fdfb155959f9ec"
 
 [[package]]
 name = "winpty-rs"
-version = "0.3.16"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a488ba1617a2048293b1e2faaffc33cd6c967c199af17ff9de7bd08946d8d424"
+checksum = "13fce64972ee42703b2be1573fa22ddd0f92cdffe029e5f483e22d498252a748"
 dependencies = [
  "bitflags 2.4.1",
  "enum-primitive-derive",
